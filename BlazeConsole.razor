@@ -1,0 +1,18 @@
+﻿<div class="blaze-console-container">
+    <textarea id="blaze-console"
+              name="blaze-console"
+              class="console-window"
+              cols="@console.WindowHeight"
+              rows="@console.WindowWidth"
+              style="@style"
+              bind:after="">
+
+        @consoleBuffer
+    </textarea>
+</div>
+
+@code {
+    private ConsoleService console = new ConsoleService();
+    private string consoleBuffer = "";
+    private string style => $"color: {console.ForegroundColorString}; background-color: {console.BackgroundColorString};";
+}
