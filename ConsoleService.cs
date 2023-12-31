@@ -11,12 +11,12 @@ internal class ConsoleService
     private string _foregroundColorString = "lime";
     private string _backgroundcolorString = "black";
 
-    public int WindowWidth { get; private set; }
-    public int WindowHeight { get; private set; }
-    public int WindowTop { get; private set; }
-    public int WindowLeft { get; private set; }
-    public int CursorLeft { get; private set; }
-    public int CursorTop { get; private set; }
+    public int WindowWidth { get; set; }
+    public int WindowHeight { get; set; }
+    public int WindowTop { get; set; }
+    public int WindowLeft { get; set; }
+    public int CursorLeft { get; set; }
+    public int CursorTop { get; set; }
     public string? Title { get; set; }
     public bool ShowCursor { get; set; }
     public bool CapsLock { get; set; }

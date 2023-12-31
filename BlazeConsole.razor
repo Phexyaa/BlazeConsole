@@ -1,18 +1,80 @@
-﻿<div class="blaze-console-container">
-    <textarea id="blaze-console"
-              name="blaze-console"
+﻿@inject JsInteropHelper _interop;
+@implements IAsyncDisposable;
+
+<div class="blaze-console-container">
+    <textarea id="@consoleId"
+              name="@consoleId"
               class="console-window"
               cols="@console.WindowHeight"
               rows="@console.WindowWidth"
-              style="@style"
-              bind:after="">
+              style="@style">
 
         @consoleBuffer
     </textarea>
 </div>
+<strong><em>Width: @width</em></strong>
+<strong><em>Height: @height</em></strong>
+<strong><em>Columns: @console.WindowWidth</em></strong>
+<strong><em>Rows: @console.WindowHeight</em></strong>
 
 @code {
     private ConsoleService console = new ConsoleService();
     private string consoleBuffer = "";
-    private string style => $"color: {console.ForegroundColorString}; background-color: {console.BackgroundColorString};";
+    private int fontSize = 16;
+    private int width;
+    private int height;
+    private int borderWidth = 1;
+    private string consoleId = "blaze-console";
+    private string style => $"color: {console.ForegroundColorString};" 
+    + $"background-color: {console.BackgroundColorString};"
+    + $"font-size: {fontSize}px;"
+    + $"border: {borderWidth}px solid black;";
+
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await ComputeColumnsAndRows();
+        if (firstRender)
+            consoleBuffer = GenerateFiller();
+    }
+
+    private async ValueTask ComputeColumnsAndRows()
+    {
+        width = await _interop.GetWidthPixels(consoleId);
+        height = await _interop.GetHeightPixels(consoleId);
+
+        console.WindowWidth = (width - borderWidth) / (fontSize - 7);
+        console.WindowHeight = (height - borderWidth) / (fontSize + 3);
+
+        StateHasChanged();
+    }
+
+    private string GenerateFiller()
+    {
+        var filler = "";
+
+        for (int i = 0; i < console.WindowHeight; i++)
+        {
+            for (int x = 0; x < console.WindowWidth; x++)
+            {
+                filler = filler + " ";
+            }
+            filler = filler + Environment.NewLine;
+        }
+
+        return filler;
+    }
+
+    public async ValueTask DisposeAsync() => await _interop.DisposeAsync();
+
+
+    /*TODO:
+     * enusre the consoleBuffer is expanded upon resize of window
+     * ensure user cannot resize window smaller than consoleBuffer if consoleBuffer == anything other than a long string of " " and Environment.NewLine chars.
+     * create event handler to catch keyboard input before propagation to textarea element.
+     * ensure characters are replaced and that consoleBuffer is not expanded/wrapped outside the bounds of console.WindowWidth and console.WindowHeight
+     * add event handlers for ConsoleService class events (OnRead,OnWrite, OnReadKey, etc)
+     */
+
 }
