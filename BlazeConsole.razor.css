@@ -1,15 +1,26 @@
 ﻿*{
 }
-.blaze-console-container{
-    display: flex;
+.blaze-console-container {
+    display: grid;
     width: 100%;
     height: 100%;
 }
-textarea {
-    width: 80vw;
-    height: 70vh;
+.console-window{
     margin: 0 auto;
-    resize: none;
+}
+.details{
+    display: flex;
+    justify-content: space-evenly;
+    color: linen;
+}
+textarea, .details {
+    width: 80vw;
+    max-width: 95vw;
+    height: 70vh;
+    max-height: 85vh;
+    margin: 0 auto;
+}
+textarea {
     box-sizing: border-box;
     margin: 0;
     padding: 0;

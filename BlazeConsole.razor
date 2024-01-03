@@ -9,23 +9,45 @@
               rows="@console.WindowWidth"
               style="@style">
 
-        @consoleBuffer
-    </textarea>
+        @consoleGrid
+    </textarea><div class="details">
+        @* TODO Trim Info *@
+        <div>
+            <strong><em>Width: @width</em></strong>
+            <strong><em>Height: @height</em></strong>
+        </div>
+        <div>
+            <strong><em>Columns: @console.WindowWidth</em></strong>
+            <strong><em>Rows: @console.WindowHeight</em></strong>
+        </div>
+    </div>
 </div>
-<strong><em>Width: @width</em></strong>
-<strong><em>Height: @height</em></strong>
-<strong><em>Columns: @console.WindowWidth</em></strong>
-<strong><em>Rows: @console.WindowHeight</em></strong>
 
 @code {
     private ConsoleService console = new ConsoleService();
-    private string consoleBuffer = "";
+    private string consoleGrid = "";
+    private string inputBuffer = "";
     private int fontSize = 16;
-    private int width;
-    private int height;
+    private int _width;
+    private int width { get { return _width; }
+        set
+        {
+            _width = value;
+            DrawScreen();
+        } }
+    private int _height;
+    private int height
+    {
+        get { return _height; }
+        set
+        {
+            _height = value;
+            DrawScreen();
+        }
+    }
     private int borderWidth = 1;
     private string consoleId = "blaze-console";
-    private string style => $"color: {console.ForegroundColorString};" 
+    private string style => $"color: {console.ForegroundColorString};"
     + $"background-color: {console.BackgroundColorString};"
     + $"font-size: {fontSize}px;"
     + $"border: {borderWidth}px solid black;";
@@ -35,8 +57,10 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await ComputeColumnsAndRows();
+        if (!string.IsNullOrEmpty(inputBuffer))
+            DrawScreen();
         if (firstRender)
-            consoleBuffer = GenerateFiller();
+            consoleGrid = GenerateFiller();
     }
 
     private async ValueTask ComputeColumnsAndRows()
@@ -58,23 +82,47 @@
         {
             for (int x = 0; x < console.WindowWidth; x++)
             {
-                filler = filler + " ";
+                filler = filler + "Q";
             }
             filler = filler + Environment.NewLine;
         }
 
         return filler;
     }
+    private void DrawScreen()
+    {
+        if (inputBuffer == consoleGrid) return;
+        if (inputBuffer.Length == consoleGrid.Length)
+        {
+            consoleGrid = inputBuffer;
+        }
+        else
+        {
+            var inputCols = CountInputColumns();
+            var inputRows = CountInputRows();
+
+            consoleGrid = GenerateFiller();
+        }
+    }
+    private int CountInputColumns()
+    {
+        return 0;
+    }
+    private int CountInputRows()
+    {
+        return 0;
+    }
 
     public async ValueTask DisposeAsync() => await _interop.DisposeAsync();
 
 
     /*TODO:
-     * enusre the consoleBuffer is expanded upon resize of window
-     * ensure user cannot resize window smaller than consoleBuffer if consoleBuffer == anything other than a long string of " " and Environment.NewLine chars.
-     * create event handler to catch keyboard input before propagation to textarea element.
-     * ensure characters are replaced and that consoleBuffer is not expanded/wrapped outside the bounds of console.WindowWidth and console.WindowHeight
-     * add event handlers for ConsoleService class events (OnRead,OnWrite, OnReadKey, etc)
-     */
+    * ensure user cannot resize window smaller than inputBuffer if inputBuffer != consoleGrid
+    * create event handler to catch keyboard input before propagation to textarea element.
+    * ensure characters are replaced and that consoleGrid is not expanded/wrapped outside the bounds of console.WindowWidth and console.WindowHeight
+    * add event handlers for ConsoleService class events (OnRead,OnWrite, OnReadKey, etc)
+    *
+    * TRY TO DO BETTER THAN USING MAGIC NUMBER MODIFIERS FOR COLUMNS AND ROWS???
+    */
 
 }
